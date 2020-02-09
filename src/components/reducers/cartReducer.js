@@ -1,4 +1,4 @@
-import { ADD_TO_CART } from '../actions/action-types/cart-actions'
+import { ADD_TO_CART, REMOVE_ITEM, SUBTRACT_QUANTITY, ADD_QUANTITY } from '../actions/action-types/cart-actions'
 
 import Item1 from "../../images/item1.jpg"
 import Item2 from "../../images/item2.jpg"
@@ -44,6 +44,52 @@ const cartReducer = (state = initState, action) => {
             return {
                 ...state,
                 addedItems: [...state.addedItems, addedItem],
+                total: newTotal
+            }
+        }
+    } else if (action.type === REMOVE_ITEM) {
+        let itemToRemove = state.addedItems.find(item => action.id === item.id)
+        let updatedAddedItems = state.addedItems.filter(item => item.id !== action.id)
+
+        // Calculate the new total
+        let newTotal = state.total - (itemToRemove.price * itemToRemove.quantity)
+
+        return {
+            ...state,
+            addedItems: updatedAddedItems,
+            total: newTotal
+        }
+    } else if (action.type === ADD_QUANTITY) {
+        let addedItem = state.items.find(item => item.id === action.id)
+
+        addedItem.quantity++
+
+        let newTotal = state.total + addedItem.price
+
+        return {
+            ...state,
+            total: newTotal
+        }
+    } else if (action.type === SUBTRACT_QUANTITY) {
+        let addedItem = state.items.find(item => item.id === action.id)
+
+        // If the qty === 0 this we should remove
+        if (addedItem.quantity === 1) {
+            let new_items = state.addedItems.filter(item => item.id !== action.id)
+            let newTotal = state.total - addedItem.price
+            
+            return {
+                ...state,
+                addedItems: new_items,
+                total: newTotal
+            }
+        } else {
+            addedItem.quantity--
+
+            let newTotal = state.total - addedItem.price
+
+            return {
+                ...state,
                 total: newTotal
             }
         }
